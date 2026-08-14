@@ -25,7 +25,6 @@ COPY --from=builder --chown=expressjs:nodejs /app/models ./models
 COPY --from=builder --chown=expressjs:nodejs /app/routes ./routes
 COPY --from=builder --chown=expressjs:nodejs /app/services ./services
 COPY --from=builder --chown=expressjs:nodejs /app/index.js ./index.js
-COPY --from=builder --chown=expressjs:nodejs /app/rules.md ./rules.md
 
 # Create logs directory and ensure the non-root user owns it
 RUN mkdir -p logs && chown -R expressjs:nodejs logs
