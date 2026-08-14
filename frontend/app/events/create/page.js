@@ -35,13 +35,11 @@ export default function CreateEvent() {
     // Front-end Validation
     const validationError = validateForm();
     if (validationError) {
-      console.warn("Form validation failed:", validationError);
       setError(validationError);
       return;
     }
 
     try {
-      console.log("Submitting new event data:", formData);
       const token = localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/events`, {
         method: 'POST',
@@ -54,14 +52,11 @@ export default function CreateEvent() {
       const data = await res.json();
       
       if (!res.ok) {
-        console.error("API error response:", data);
         throw new Error(data.error || 'Failed to create event');
       }
       
-      console.log("Event created successfully:", data);
       router.push('/');
     } catch (err) {
-      console.error("Failed to submit event:", err.message);
       setError(err.message);
     }
   };

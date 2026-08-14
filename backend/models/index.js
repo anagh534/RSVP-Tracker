@@ -23,28 +23,30 @@ RSVP.belongsTo(Event, { foreignKey: 'eventId', as: 'event' });
 
 // Unique constraint for RSVP handled in RSVP.js definition
 
+const logger = require('../config/logger');
+
 const syncDatabase = async () => {
   try {
     await sequelize.authenticate();
-    console.log('Connection to the database has been established successfully.');
+    logger.info('Connection to the database has been established successfully.');
     await sequelize.sync({ alter: true });
-    console.log('Database synchronized.');
+    logger.info('Database synchronized.');
 
     // Seed data
     const userCount = await User.count();
     if (userCount === 0) {
-      console.log('Seeding initial users...');
+      logger.info('Seeding initial users...');
       const password = await bcrypt.hash('password123', 10);
       await User.bulkCreate([
         { name: 'Alice', email: 'alice@example.com', password },
         { name: 'Bob', email: 'bob@example.com', password },
         { name: 'Charlie', email: 'charlie@example.com', password }
       ]);
-      console.log('Seeded users.');
+      logger.info('Seeded users.');
     }
 
   } catch (error) {
-    console.error('Unable to connect to the database:', error);
+    logger.error(`Unable to connect to the database: ${error.message}`);
   }
 };
 

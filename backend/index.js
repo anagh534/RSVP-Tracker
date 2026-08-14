@@ -1,5 +1,7 @@
 const express = require('express');
 const cors = require('cors');
+const morgan = require('morgan');
+const logger = require('./config/logger');
 const { syncDatabase } = require('./models');
 const eventRoutes = require('./routes/eventRoutes');
 const authRoutes = require('./routes/authRoutes');
@@ -11,6 +13,13 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// HTTP Request Logging
+app.use(morgan('combined', {
+  stream: {
+    write: (message) => logger.info(message.trim())
+  }
+}));
 
 // Routes
 app.use('/api/auth', authRoutes);
@@ -30,14 +39,14 @@ const startServer = async () => {
       await syncDatabase();
       break;
     } catch (err) {
-      console.log('Database sync failed, retrying...', retries);
+      logger.warn(`Database sync failed, retrying... (${retries} left)`);
       retries -= 1;
       await new Promise(res => setTimeout(res, 5000));
     }
   }
 
   app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}.`);
+    logger.info(`Server is running on port ${PORT}.`);
   });
 };
 

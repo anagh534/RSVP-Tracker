@@ -39,7 +39,6 @@ export default function Login() {
     }
 
     try {
-      console.log(`Attempting login for: ${email}`);
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -49,16 +48,13 @@ export default function Login() {
       const data = await res.json();
       
       if (!res.ok) {
-        console.error('Login failed:', data.error);
         throw new Error(data.error || 'Invalid credentials');
       }
       
-      console.log('Login successful. Saving token and redirecting...');
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/');
     } catch (err) {
-      console.error('Exception caught during login:', err.message);
       setError(err.message);
     }
   };
