@@ -24,6 +24,7 @@ COPY --from=builder --chown=expressjs:nodejs /app/middleware ./middleware
 COPY --from=builder --chown=expressjs:nodejs /app/models ./models
 COPY --from=builder --chown=expressjs:nodejs /app/routes ./routes
 COPY --from=builder --chown=expressjs:nodejs /app/services ./services
+COPY --from=builder --chown=expressjs:nodejs /app/validators ./validators
 COPY --from=builder --chown=expressjs:nodejs /app/index.js ./index.js
 
 # Create logs directory and ensure the non-root user owns it
