@@ -21,20 +21,7 @@ RSVP.belongsTo(User, { foreignKey: 'userId', as: 'user' });
 Event.hasMany(RSVP, { foreignKey: 'eventId' });
 RSVP.belongsTo(Event, { foreignKey: 'eventId', as: 'event' });
 
-// Unique constraint for RSVP: A user can only have one RSVP per event
-// Sequelize doesn't easily set multi-column unique on belongsToMany via through model natively in an elegant way without defining it on the through model.
-// We should ensure the DB has this constraint. Let's add an index or define it on the RSVP model definition.
-// Wait, we defined RSVP model. Let's add index in RSVP model, or here using sequelize.query later, or we can just enforce in business logic.
-// Better, let's redefine the unique index on RSVP directly.
-RSVP.init(RSVP.rawAttributes, {
-  ...RSVP.options,
-  indexes: [
-    {
-      unique: true,
-      fields: ['userId', 'eventId']
-    }
-  ]
-});
+// Unique constraint for RSVP handled in RSVP.js definition
 
 const syncDatabase = async () => {
   try {

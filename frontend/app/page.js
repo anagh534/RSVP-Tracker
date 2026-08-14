@@ -8,8 +8,18 @@ export default function Home() {
   useEffect(() => {
     fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/events`)
       .then(res => res.json())
-      .then(data => setEvents(data))
-      .catch(err => console.error(err));
+      .then(data => {
+        if (Array.isArray(data)) {
+          setEvents(data);
+        } else {
+          console.error('API Error:', data);
+          setEvents([]); // Prevent crash
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        setEvents([]);
+      });
   }, []);
 
   return (
