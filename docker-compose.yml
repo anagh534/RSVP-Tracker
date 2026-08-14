@@ -11,32 +11,51 @@ services:
       - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   backend:
-    build: ./backend
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
     container_name: rsvp_backend
     ports:
       - "3001:3001"
     environment:
+      - NODE_ENV=production
       - DB_HOST=db
       - DB_USER=root
       - DB_PASSWORD=root
       - DB_NAME=rsvp_tracker
       - PORT=3001
-      - JWT_SECRET=super_secret_jwt_key
+      - JWT_SECRET=super_secret_jwt_key_production
     depends_on:
-      - db
-    restart: on-failure
+      db:
+        condition: service_healthy
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
 
   frontend:
-    build: ./frontend
+    build: 
+      context: ./frontend
+      dockerfile: Dockerfile
     container_name: rsvp_frontend
     ports:
       - "3000:3000"
     environment:
+      - NODE_ENV=production
       - NEXT_PUBLIC_API_URL=http://localhost:3001/api
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    restart: always
 
 volumes:
   db_data:
