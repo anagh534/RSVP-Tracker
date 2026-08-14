@@ -1,6 +1,6 @@
 const { Event, User, RSVP } = require('../models');
 
-exports.getAllEvents = async (page = 1, limit = 9) => {
+exports.getAllEvents = async (page = 1, limit = 6) => {
   const offset = (page - 1) * limit;
   return await Event.findAndCountAll({
     limit,

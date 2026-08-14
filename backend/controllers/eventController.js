@@ -4,7 +4,7 @@ const rsvpService = require('../services/rsvpService');
 exports.getAllEvents = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 9;
+    const limit = parseInt(req.query.limit) || 6;
     const result = await eventService.getAllEvents(page, limit);
     
     res.status(200).json({
