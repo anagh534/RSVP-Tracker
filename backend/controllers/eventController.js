@@ -3,8 +3,16 @@ const rsvpService = require('../services/rsvpService');
 
 exports.getAllEvents = async (req, res) => {
   try {
-    const events = await eventService.getAllEvents();
-    res.status(200).json(events);
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 9;
+    const result = await eventService.getAllEvents(page, limit);
+    
+    res.status(200).json({
+      events: result.rows,
+      total: result.count,
+      currentPage: page,
+      totalPages: Math.ceil(result.count / limit)
+    });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

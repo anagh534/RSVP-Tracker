@@ -1,7 +1,11 @@
 const { Event, User, RSVP } = require('../models');
 
-exports.getAllEvents = async () => {
-  return await Event.findAll({
+exports.getAllEvents = async (page = 1, limit = 9) => {
+  const offset = (page - 1) * limit;
+  return await Event.findAndCountAll({
+    limit,
+    offset,
+    order: [['date', 'ASC']],
     include: [
       { model: User, as: 'creator', attributes: ['id', 'name'] },
       { model: RSVP, as: 'RSVPs', include: [{ model: User, as: 'user', attributes: ['id', 'name'] }] }
