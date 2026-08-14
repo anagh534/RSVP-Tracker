@@ -5,7 +5,8 @@ exports.getAllEvents = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 6;
-    const result = await eventService.getAllEvents(page, limit);
+    const search = req.query.search || '';
+    const result = await eventService.getAllEvents(page, limit, search);
     
     res.status(200).json({
       events: result.rows,

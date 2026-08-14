@@ -1,8 +1,18 @@
 const { Event, User, RSVP } = require('../models');
+const { Op } = require('sequelize');
 
-exports.getAllEvents = async (page = 1, limit = 6) => {
+exports.getAllEvents = async (page = 1, limit = 6, search = '') => {
   const offset = (page - 1) * limit;
+  
+  const where = {};
+  if (search) {
+    where.title = {
+      [Op.like]: `%${search}%`
+    };
+  }
+
   return await Event.findAndCountAll({
+    where,
     limit,
     offset,
     order: [['date', 'ASC']],

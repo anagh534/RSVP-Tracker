@@ -7,10 +7,34 @@ export default function Home() {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+  
+  // Search state
+  const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce logic
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Reset page to 1 when search changes
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch]);
 
   useEffect(() => {
     setIsLoading(true);
-    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/events?page=${page}&limit=6`)
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: '6',
+      ...(debouncedSearch && { search: debouncedSearch })
+    });
+
+    fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api'}/events?${queryParams.toString()}`)
       .then(res => res.json())
       .then(data => {
         if (data.events) {
@@ -18,6 +42,7 @@ export default function Home() {
           setTotalPages(data.totalPages);
         } else if (Array.isArray(data)) {
           setEvents(data);
+          setTotalPages(1);
         } else {
           setEvents([]);
         }
@@ -29,14 +54,30 @@ export default function Home() {
       .finally(() => {
         setIsLoading(false);
       });
-  }, [page]);
+  }, [page, debouncedSearch]);
 
   return (
     <div className="py-8">
-      <div className="flex justify-between items-end mb-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Upcoming Meetups</h1>
           <p className="text-gray-500 mt-2">Discover and join local events happening around you.</p>
+        </div>
+        
+        {/* Search Input */}
+        <div className="w-full md:w-72 relative">
+          <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+          <input
+            type="text"
+            className="block w-full pl-10 pr-3 py-2.5 border border-gray-200 rounded-xl leading-5 bg-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:text-sm transition-all text-gray-900 shadow-sm"
+            placeholder="Search events by title..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
         </div>
       </div>
       
@@ -90,8 +131,9 @@ export default function Home() {
         ))}
         {!isLoading && events.length === 0 && (
           <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-gray-100 border-dashed">
-            <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 002-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-            <p className="text-gray-500 font-medium">No events found. Be the first to create one!</p>
+            <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <p className="text-gray-900 font-medium mb-1">No events found.</p>
+            <p className="text-gray-500 text-sm">Try adjusting your search query.</p>
           </div>
         )}
       </div>
